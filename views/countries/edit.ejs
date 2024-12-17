@@ -1,0 +1,224 @@
+<h1 class="py-6 text-center">Editar país</h1>
+<section class="container m-auto grid gap-6">
+  <!-- Tarjeta con la información del país -->
+  <div
+    id="country-card"
+    data-country="<%= JSON.stringify(country) %>"
+    class="bg-black/60 p-3 w-full grid gap-1 m-auto sm:rounded-md sm:max-w-xl md:p-6"
+  >
+    <div class="text-center m-auto max-w-md">
+      <img src="<%= country.flags?.png ? country.flags.png : "" %>" alt="">
+    </div>
+    <div>
+      <h3 class="inline font-bold">Nombre oficial:</h3>
+      <span class="h3"> <%= country.name.nativeName.spa.official %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Nombre común:</h3>
+      <span class="h3"> <%= country.name.nativeName.spa.common %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Capital:</h3>
+      <span class="h3"> <%= country.capital[0] %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Países limítrofes:</h3>
+      <span class="h3">
+        <% if (country.borders.length > 0) { %> <%= country.borders.join(", ") %> <% }
+        else { %> <%= "Sin países limítrofes" %> <% } %>
+      </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Area:</h3>
+      <span class="h3"> <%= `${country.area}km²` %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Población:</h3>
+      <span class="h3"> <%= `${country.population}` %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Monedas:</h3>
+      <span class="h3">
+        <%= country.currencies ? Object.keys(country.currencies) : "No disponible" %>
+      </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Región:</h3>
+      <span class="h3"> <%= country.region || "No disponible" %> </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Código de la FIFA:</h3>
+      <span class="h3"> <%= country.fifa || "No disponible" %> </span>
+    </div>
+    <% country.lastGini = country.gini ? Object.entries(country.gini).toSorted(([a,b],
+    [c,d]) => a-b).pop() : null %>
+    <div>
+      <h3 class="inline font-bold">Coeficiente de Gini:</h3>
+      <% if (country.lastGini) { %>
+      <span class="h3"> <%= `${country.lastGini[1]} (${country.lastGini[0]})` %> </span>
+      <% } else { %>
+      <span class="h3">No registrado</span>
+      <% } %>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Zonas horarias:</h3>
+      <span class="h3">
+        <% if (country.timezones.length > 0) { %> <%= country.timezones.join(", ") %> <% }
+        else { %> <%= "No disponible" %> <% } %>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section class="container m-auto md:p-3">
+  <!-- Formulario para actualizar datos del país -->
+  <form
+    id="editCountryForm"
+    class="grid gap-3 bg-black/60 p-3 m-auto w-full sm:max-w-xl sm:rounded-md"
+  >
+    <h2 class="text-center font-semibold">Actualizar datos</h2>
+    <p class="hint text-center">
+      Todos los campos son opcionales. Dejar vacíos si no se desean actualizar.
+    </p>
+    <hr class="border-t border-white/20" />
+
+    <!-- Nombre -->
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold w-1/3">Nombre</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="officialName">Oficial</label>
+          <input type="text" name="officialName" id="officialName" />
+        </div>
+        <div class="flex flex-col">
+          <label for="commonName">Común</label>
+          <input type="text" name="commonName" id="commonName" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <!-- Detalles -->
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold w-1/3">Detalles</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="capital">Capital</label>
+          <input type="text" name="capital" id="capital" />
+        </div>
+        <div class="flex flex-col">
+          <label for="borders">Países limítrofes (alpha-3)</label>
+          <input type="text" name="borders" id="borders" />
+        </div>
+        <div class="flex flex-col">
+          <label for="area">Area</label>
+          <input type="number" min="0" name="area" id="area" />
+        </div>
+        <div class="flex flex-col">
+          <label for="population">Población</label>
+          <input type="number" min="0" name="population" id="population" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <!-- Datos del indice Gini -->
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold mx-auto sm:w-1/3">Gini</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="giniYear">Año</label>
+          <input
+            type="number"
+            name="giniYear"
+            id="giniYear"
+            min="1912"
+            max="<%= (new Date()).getFullYear() %>"
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="giniIndex">Coeficiente de Gini</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="100"
+            name="giniIndex"
+            id="giniIndex"
+          />
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <!-- Botones -->
+    <div class="ml-auto flex gap-6">
+      <button type="submit" class="button">Actualizar</button>
+      <button
+        type="reset"
+        class="button bg-transparent hover:bg-transparent hover:text-white"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+  document.querySelector("#editCountryForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const formObject = Object.fromEntries(formData.entries());
+
+    if (Boolean(formObject.giniYear) ^ Boolean(formObject.giniIndex)) {
+      return alert(
+        "La sección de Gini está parcialmente completa. Por favor, rellena todos los campos o déjalos todos vacíos."
+      );
+    }
+
+    const newCountryData = {
+      capital: formObject.capital ? [formObject.capital] : undefined,
+      population: formObject.population,
+      borders: formObject.borders && formObject.borders.split(","),
+      area: formObject.area,
+      gini: formObject.giniYear && {
+        [formObject.giniYear]: formObject.giniIndex,
+      },
+    };
+    
+    if (formObject.officialName) {
+      newCountryData["name.official"] = formObject.officialName;
+    }
+    if (formObject.commonName) {
+      newCountryData["name.common"] = formObject.commonName;
+    }
+
+    const cleanedNewCountryData = Object.fromEntries(
+      Object.entries(newCountryData).filter(([_, v]) => Boolean(v))
+    );
+
+    if (Object.keys(cleanedNewCountryData).length < 1) {
+      alert("Se necesita completar al menos un campo del formulario.");
+      return;
+    }
+
+    const response = await fetch("/paises/<%= country._id %>/editar", {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cleanedNewCountryData),
+    });
+    if (response.status === 200) {
+      location.reload();
+    } else if (response.status === 400) {
+      console.error(await response.json());
+    } else {
+      console.error("Se detecto un error interno.");
+    }
+  });
+</script>

@@ -1,0 +1,140 @@
+<section class="container m-auto md:p-3">
+  <h1 class="font-light text-center p-3">AGREGAR NUEVO PAÍS</h1>
+  <form
+    action="/paises/agregar"
+    method="post"
+    id="createCountryForm"
+    class="grid gap-3 bg-black/60 p-3 m-auto w-full sm:max-w-xl sm:rounded-md"
+  >
+    <h2 class="text-center font-semibold">Datos del nuevo país</h2>
+
+    <hr class="border-t border-white/20" />
+
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold mx-auto sm:w-1/3">Nombre</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="officialName">Oficial</label>
+          <input type="text" name="officialName" id="officialName" required />
+        </div>
+        <div class="flex flex-col">
+          <label for="commonName">Común <span class="hint">(opcional)</span></label>
+          <input type="text" name="commonName" id="commonName" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold mx-auto sm:w-1/3">Detalles</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="capital">Capital</label>
+          <input type="text" name="capital" id="capital" required />
+        </div>
+        <div class="flex flex-col">
+          <label for="borders"
+            >Países limítrofes (alpha-3) <span class="hint">(opcional)</span></label
+          >
+          <input type="text" name="borders" id="borders" />
+        </div>
+        <div class="flex flex-col">
+          <label for="area">Area</label>
+          <input type="number" min="0" name="area" id="area" required />
+        </div>
+        <div class="flex flex-col">
+          <label for="population">Población</label>
+          <input type="number" min="0" name="population" id="population" required />
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <div class="flex flex-col sm:flex-row">
+      <h3 class="text-base font-bold mx-auto sm:w-1/3">Gini</h3>
+      <div class="grid gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="giniYear">Año</label>
+          <input
+            type="number"
+            name="giniYear"
+            id="giniYear"
+            min="1912"
+            max="<%= (new Date()).getFullYear() %>"
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="giniIndex">Coeficiente de Gini</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="100"
+            name="giniIndex"
+            id="giniIndex"
+          />
+        </div>
+        <span class="hint">No es obligatorio rellenar esta sección.</span>
+      </div>
+    </div>
+
+    <hr class="border-t border-white/20" />
+
+    <div class="ml-auto flex gap-6">
+      <button type="submit" class="button">Añadir</button>
+      <button
+        type="reset"
+        class="button bg-transparent hover:bg-transparent hover:text-white"
+      >
+        Cancelar
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+  document.querySelector("#createCountryForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const formObject = Object.fromEntries(formData.entries());
+
+    if (Boolean(formObject.giniYear) ^ Boolean(formObject.giniIndex))
+      return alert(
+        "La sección de Gini está parcialmente completa. Por favor, rellena todos los campos o déjalos todos vacíos."
+      );
+
+    const countryData = {
+      name: {
+        official: formObject.officialName ?? country.name?.official,
+        common: formObject.commonName ?? country.name?.common,
+      },
+      capital: [formObject.capital],
+      borders: formObject.borders.split(","),
+      area: formObject.area,
+      population: formObject.population,
+      gini: formObject.giniIndex && {
+        [formObject.giniYear]: formObject.giniIndex,
+      },
+    };
+
+    const response = await fetch("/paises/agregar", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(countryData),
+    });
+    if (response.status === 200) {
+      alert("País añadido a la base de datos.");
+      window.location.href = "/paises";
+    } else if (response.status === 400) {
+      console.error(await response.json());
+    } else {
+      console.error(await response.json());
+    }
+  });
+</script>

@@ -1,0 +1,25 @@
+DELETE http://localhost:3000/paises/6757d84c94b0e87e610633d7 HTTP/1.1
+
+###
+POST http://localhost:3000/paises/agregar HTTP/1.1
+content-type: application/json
+
+{
+    "name": {"official": "República Popular China", "common": ""},
+    "capital": ["Pekín"],
+    "borders": ["AFG", "BTN", "MMR", "HKG", "IND", "KAZ", "NPL", "PRK", "KGZ", "LAO", "MAC", "MNG", "PAK", "RUS", "TJK", "VNM"],
+    "area": 9596900,
+    "population": 1409670000,
+    "gini": {"123" : "23"}
+}
+
+
+###
+PUT http://localhost:3000/paises/675a1121717a7c8e4c6b9c1f/editar HTTP/1.1
+content-type: application/json
+
+{
+    "capital": ["Managua"],
+    "borders": ["CRI", "HND"]
+}
+

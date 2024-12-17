@@ -1,0 +1,144 @@
+<% 
+const giniCoefficients = countries.reduce((acc, country) => { 
+  if (country.gini){
+    acc.sum += Object.values(country.gini)[0];
+    acc.count += 1
+  }
+  return acc;
+}, { sum: 0, count: 0 }) 
+locals.giniCount = giniCoefficients.count
+locals.averageGini = giniCoefficients.sum / giniCoefficients.count
+%>
+
+<h1 class="font-light p-3 text-center">DASHBOARD</h1>
+<section>
+  <h2 class="text-center p-3">Lista de países</h2>
+
+  <!-- Lista de países registrados -->
+  <ul class="flex flex-wrap justify-center gap-3 p-3">
+    <% countries.forEach((country)=>{ %>
+    <li class="w-full max-w-lg">
+      <!-- Tarjeta con información de un país -->
+      <div class="border border-white bg-black/60 p-3 rounded-md grid gap-1">
+        <div class="text-center m-auto rounded-md overflow-hidden max-w-xs">
+          <img src="<%= country.flags?.png ? country.flags.png : "/images/flag-placeholder.png" %>" alt="">
+        </div>
+        <br>
+        <div>
+          <h3 class="font-bold inline">Nombre oficial:</h3>
+          <span class="h3">
+            <%= country.name.nativeName.spa.official %>
+          </span>
+        </div>
+        <div>
+          <h3 class="inline font-bold">Capital:</h3>
+          <span class="h3">
+            <%= country.capital[0] %>
+          </span>
+        </div>
+        <div>
+          <h3 class="inline font-bold">Países limítrofes:</h3>
+          <span class="h3">
+            <% if (country.borders.length > 0) { %>
+            <%= country.borders.join(", ") %>
+            <% } else { %>
+            <%= "Sin países limítrofes" %>
+            <% } %>
+          </span>
+        </div>
+        <div>
+          <h3 class="inline font-bold">Area:</h3>
+          <span class="h3">
+            <%= `${country.area}km²` %>
+          </span>
+        </div>
+        <div>
+          <h3 class="inline font-bold">Población:</h3>
+          <span class="h3">
+            <%= `${country.population}` %>
+          </span>
+        </div>
+        <% country.lastGini = country.gini ? Object.entries(country.gini).toSorted(([a,b], [c,d]) => a-b).pop() : null %>
+        <div>
+          <h3 class="inline font-bold">Coeficiente de Gini:</h3>
+          <% if (country.lastGini) { %>
+          <span class="h3">
+            <%= `${country.lastGini[1]} (${country.lastGini[0]})` %>
+          </span>
+          <% } else { %>
+          <span class="h3">No registrado</span>
+          <% } %>
+        </div>
+        <div>
+          <h3 class="inline font-bold">Zonas horarias:</h3>
+          <span class="h3">
+            <% if (country.timezones.length > 0) { %>
+            <%= country.timezones.join(", ") %>
+            <% } else { %>
+            <%= "No disponible" %>
+            <% } %>
+          </span>
+        </div>
+        <!-- Botones -->
+        <div class="flex gap-3 py-3">
+          <a href="/paises/<%= country._id %>/editar" class="button">Editar</a>
+          <button class="button bg-red-500 hover:border-red-500 hover:bg-red-100" onclick="deleteCountry('<%= country._id %>', '<%= country.name.nativeName.spa.official %>')">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </li>
+    <% }) %>
+  </ul>
+</section>
+
+<!-- Información general de todos los países -->
+<section class="mx-auto my-6 grid gap-3">
+  <div class="grid gap-3 p-3 bg-black/60 border border-white max-w-max m-auto rounded-md">
+    <h2 class="text-center font-bold p-3">Información general</h2>
+    <div>
+      <h3 class="inline font-bold">Población total:</h3>
+      <span class="h3">
+        <%= countries.reduce((accumulator, currentValue) => accumulator + currentValue.population, 0) %>
+      </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Area total:</h3>
+      <span class="h3">
+        <%= countries.reduce((accumulator, currentValue) => accumulator + currentValue.area, 0) %>km²
+      </span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Países con indice de Gini registrados:</h3>
+      <span class="h3"><%= giniCount %></span>
+    </div>
+    <div>
+      <h3 class="inline font-bold">Indice de Gini promedio:</h3>
+      <span class="h3"><%= averageGini.toFixed(2) %></span>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Scripts de la vista -->
+<script>
+  const deleteCountry = async (countryId, countryName) => {
+    if (!confirm(`¿Desea eliminar el país con nombre: ${countryName}?`))
+      return;
+
+    try {
+      const response = await fetch(`/paises/${countryId}`, {
+        method: "DELETE",
+      });
+      if (response.status === 204) {
+        location.reload();
+      } else {
+        alert("Ocurrió un error, no se pudo eliminar el país.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Se produjo un error al eliminar el país");
+    }
+  };
+</script>
